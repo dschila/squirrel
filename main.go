@@ -1,7 +1,18 @@
 package main
 
-import "github.com/proph/squirrel/api"
+import (
+	"log"
+
+	"github.com/proph/squirrel/api"
+	"github.com/proph/squirrel/helpers"
+)
 
 func main() {
-	api.InitServer()
+	// Load config
+	config, err := helpers.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot laod config:", err)
+	}
+
+	api.InitServer(config)
 }
