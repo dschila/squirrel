@@ -13,7 +13,7 @@ type MinioStorage struct {
 }
 
 func InitMinioClient() (*MinioStorage, error) {
-	endpoint := "localhost:6970"
+	endpoint := "localhost:6971"
 	accessKeyID := "minioadmin"
 	secretAccessKey := "minioadmin"
 
