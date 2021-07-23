@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	v1 "github.com/proph/squirrel/api/v1"
 	"github.com/proph/squirrel/database"
@@ -8,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func InitServer(config helpers.Config) {
+func InitServer(config helpers.Configuration) {
 	database, err := database.InitMongoDB(config)
 	if err != nil {
 		logrus.Error(err)
@@ -20,5 +22,5 @@ func InitServer(config helpers.Config) {
 	route := server.Group("/api/v1")
 	v1.ShareRoutes(route, database)
 
-	server.Run(":" + config.PORT)
+	server.Run(":" + strconv.Itoa(config.Server.Port))
 }

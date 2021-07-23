@@ -9,9 +9,9 @@ import (
 
 func main() {
 	// Load config
-	config, err := helpers.LoadConfig(".")
+	config, err := helpers.LoadConfig()
 	if err != nil {
-		log.Fatal("cannot laod config:", err)
+		log.Fatal("cannot load config:", err)
 	}
 
 	api.InitServer(config)
