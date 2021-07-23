@@ -21,19 +21,3 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
-  # Storage
-  minio:
-    image: minio/minio
-    container_name: minio-storage
-    environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-    ports:
-    - '6971:9000'
-    volumes:
-    - 'minio_data:/data'
-    command: server /data
-
-volumes: 
-    minio_data:
-        driver: local
