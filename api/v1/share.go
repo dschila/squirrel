@@ -1,74 +1,95 @@
 package v1
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
-	"github.com/gabriel-vasile/mimetype"
+	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
-	"github.com/minio/minio-go/v7"
 	"github.com/proph/squirrel/database"
 	"github.com/proph/squirrel/models"
 	"github.com/proph/squirrel/repository"
-	"github.com/proph/squirrel/services"
 	"github.com/sirupsen/logrus"
 )
 
 func ShareRoutes(r *gin.RouterGroup, mongo *database.MongoDB) {
-	c, err := services.InitMinioClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = services.MakeBucket(c, "orca")
-	if err != nil {
-		log.Fatal(err)
-	}
+	/*
+		c, err := services.InitGCPStorageClient()
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
+	/*	_, err = services.CreateBucket(c, "test-01")
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
 
 	shareEntity := repository.NewShareEntity(mongo)
 
 	shareRoute := r.Group("/share")
-	shareRoute.POST("/", createFile(c.MinioClient, shareEntity))
+	shareRoute.POST("/", createFile(shareEntity))
 }
 
-func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Context) {
-	return func(ctx *gin.Context) {
+func createFile(shareEntity repository.IShare) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		ctx := context.Background()
 		_ = os.Mkdir("tmp", 0700)
 
-		form, _ := ctx.MultipartForm()
+		form, _ := c.MultipartForm()
 		files := form.File["file"]
+
+		client, err := storage.NewClient(ctx)
+		if err != nil {
+			logrus.Error("storage.NewClient: %v", err)
+			c.JSON(http.StatusInternalServerError, nil)
+		}
+		defer client.Close()
+
+		ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+		defer cancel()
 
 		var shareFiles []models.Files
 
 		for _, file := range files {
 			filePath := fmt.Sprintf("tmp/%s", file.Filename)
-			log.Printf("Received: %s", filePath)
-			err := ctx.SaveUploadedFile(file, filePath)
+			logrus.Printf("Received: %s", filePath)
+			err := c.SaveUploadedFile(file, filePath)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			contentType, err := mimetype.DetectFile(filePath)
+			//contentType, err := mimetype.DetectFile(filePath)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			info, putError := c.FPutObject(ctx, "orca", file.Filename, filePath, minio.PutObjectOptions{ContentType: contentType.String()})
-			if putError != nil {
-				log.Fatal(putError)
+			f, err := os.Open(filePath)
+			if err != nil {
+				logrus.Error("os.Open: %v", err)
 			}
-			log.Printf("Successfully uploaded %s of size %d\n", file.Filename, info.Size)
+			defer f.Close()
+			wc := client.Bucket("dsc-test-01").Object(file.Filename).NewWriter(ctx)
+			if _, err = io.Copy(wc, f); err != nil {
+				logrus.Error("io.Copy: %v", err)
+			}
+			if err := wc.Close(); err != nil {
+				logrus.Error("Writer.Close: %v", err)
+			}
 
 			err = os.Remove(filePath)
 			if err != nil {
-				log.Fatal(err)
+				logrus.Fatal(err)
 			}
 
 			shareFiles = append(shareFiles, models.Files{
 				Filename:   file.Filename,
-				StorageUrl: info.Key,
+				StorageUrl: "xxxxx",
 			})
 		}
 
@@ -76,7 +97,7 @@ func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Co
 			Files: shareFiles,
 		}
 
-		newShare, _, err := shareEntity.CreateShare(newShare)
+		newShare, _, err = shareEntity.CreateShare(newShare)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -85,6 +106,6 @@ func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Co
 			"share": newShare,
 		}
 
-		ctx.JSON(http.StatusCreated, response)
+		c.JSON(http.StatusCreated, response)
 	}
 }

@@ -7,9 +7,7 @@ import (
 type Configuration struct {
 	Server   ServerConfiguration
 	Database DatabaseConfigurations
-
-	// GCP
-	GOOGLE_APPLICATION_CREDENTIALS string
+	Google   GoogleCloudConfiguration
 }
 
 type ServerConfiguration struct {
@@ -19,6 +17,11 @@ type ServerConfiguration struct {
 type DatabaseConfigurations struct {
 	DBUri  string
 	DBName string
+}
+
+type GoogleCloudConfiguration struct {
+	ProjectID           string
+	CredentialsJsonPath string
 }
 
 func LoadConfig() (config Configuration, err error) {

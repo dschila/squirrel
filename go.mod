@@ -3,14 +3,16 @@ module github.com/proph/squirrel
 go 1.16
 
 require (
-	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
-	github.com/coreos/etcd v3.3.10+incompatible // indirect
-	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
-	github.com/gabriel-vasile/mimetype v1.3.1
+	cloud.google.com/go v0.88.0 // indirect
+	cloud.google.com/go/storage v1.16.0
 	github.com/gin-gonic/gin v1.7.2
-	github.com/minio/minio-go/v7 v7.0.12
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/viper v1.8.1 // indirect
-	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	go.mongodb.org/mongo-driver v1.5.3
+	github.com/spf13/viper v1.8.1
+	go.mongodb.org/mongo-driver v1.7.0
+	golang.org/x/crypto v0.0.0-20201216223049-8b5274cf687f // indirect
+	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
+	google.golang.org/api v0.51.0 // indirect
+	google.golang.org/genproto v0.0.0-20210722135532-667f2b7c528f // indirect
 )
