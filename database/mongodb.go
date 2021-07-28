@@ -26,5 +26,5 @@ func InitMongoDB(config helpers.Configuration) (*MongoDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &MongoDB{DB: mongoClient.Database(config.Database.DBUri)}, nil
+	return &MongoDB{DB: mongoClient.Database(config.Database.DBName)}, nil
 }
