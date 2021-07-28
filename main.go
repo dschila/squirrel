@@ -1,17 +1,16 @@
 package main
 
 import (
-	"log"
-
 	"github.com/proph/squirrel/api"
 	"github.com/proph/squirrel/helpers"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	// Load config
 	config, err := helpers.LoadConfig()
 	if err != nil {
-		log.Fatal("cannot load config:", err)
+		logrus.Warn("No configuration file found.")
 	}
 
 	api.InitServer(config)

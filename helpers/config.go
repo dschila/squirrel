@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -33,7 +34,7 @@ func LoadConfig() (config Configuration, err error) {
 
 	err = viper.ReadInConfig()
 	if err != nil {
-		return
+		logrus.Warn("Failed to read in configuration file")
 	}
 
 	// Set undefined variables
@@ -41,6 +42,8 @@ func LoadConfig() (config Configuration, err error) {
 	viper.SetDefault("minio.host", "localhost:6971")
 	viper.SetDefault("minio.accesskeyid", "minioadmin")
 	viper.SetDefault("minio.secretaccesskey", "minioadmin")
+	viper.SetDefault("database.uri", "mongodb://squirrel:squirrel@localhost:6972/squirrel")
+	viper.SetDefault("database.name", "squirrel")
 
 	err = viper.Unmarshal(&config)
 	return
