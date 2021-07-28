@@ -14,6 +14,7 @@ import (
 	"github.com/proph/squirrel/repository"
 	"github.com/proph/squirrel/services"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func ShareRoutes(r *gin.RouterGroup, mongo *database.MongoDB) {
@@ -21,8 +22,8 @@ func ShareRoutes(r *gin.RouterGroup, mongo *database.MongoDB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	_, err = services.MakeBucket(c, "orca")
+	const bucket = "squirrel-bucket"
+	_, err = services.MakeBucket(c, bucket)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,10 +31,10 @@ func ShareRoutes(r *gin.RouterGroup, mongo *database.MongoDB) {
 	shareEntity := repository.NewShareEntity(mongo)
 
 	shareRoute := r.Group("/share")
-	shareRoute.POST("/", createFile(c.MinioClient, shareEntity))
+	shareRoute.POST("/", createFile(c.MinioClient, bucket, shareEntity))
 }
 
-func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Context) {
+func createFile(c *minio.Client, bucket string, shareEntity repository.IShare) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		_ = os.Mkdir("tmp", 0700)
 
@@ -55,7 +56,7 @@ func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Co
 				log.Fatal(err)
 			}
 
-			info, putError := c.FPutObject(ctx, "orca", file.Filename, filePath, minio.PutObjectOptions{ContentType: contentType.String()})
+			info, putError := c.FPutObject(ctx, bucket, file.Filename, filePath, minio.PutObjectOptions{ContentType: contentType.String()})
 			if putError != nil {
 				log.Fatal(putError)
 			}
@@ -67,9 +68,11 @@ func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Co
 			}
 
 			shareFiles = append(shareFiles, models.Files{
-				Filename:   file.Filename,
-				StorageUrl: info.Key,
+				Id:       primitive.NewObjectID().Hex(),
+				Filename: file.Filename,
+				Path:     fmt.Sprintf("%s/%s", bucket, info.Key),
 			})
+
 		}
 
 		newShare := models.Share{
@@ -81,10 +84,6 @@ func createFile(c *minio.Client, shareEntity repository.IShare) func(ctx *gin.Co
 			logrus.Error(err)
 		}
 
-		response := map[string]interface{}{
-			"share": newShare,
-		}
-
-		ctx.JSON(http.StatusCreated, response)
+		ctx.JSON(http.StatusCreated, newShare)
 	}
 }

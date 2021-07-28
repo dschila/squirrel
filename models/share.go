@@ -8,6 +8,7 @@ type Share struct {
 }
 
 type Files struct {
-	Filename   string `bson:"filename" json:"filename"`
-	StorageUrl string `bson:"storageUrl" json:"storageUrl"`
+	Id       string `bson:"id" json:"id"`
+	Filename string `bson:"filename" json:"filename"`
+	Path     string `bson:"path" json:"path"`
 }
