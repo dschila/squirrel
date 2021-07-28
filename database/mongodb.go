@@ -18,13 +18,13 @@ func (r *MongoDB) CLose() {
 	logrus.Warning("Closing db connections")
 }
 
-func InitMongoDB(config helpers.Config) (*MongoDB, error) {
-	mongoClient, err := mongo.NewClient(options.Client().ApplyURI(config.MONGO_URI))
+func InitMongoDB(config helpers.Configuration) (*MongoDB, error) {
+	mongoClient, err := mongo.NewClient(options.Client().ApplyURI(config.Database.Uri))
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = mongoClient.Connect(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &MongoDB{DB: mongoClient.Database(config.MONGO_DB)}, nil
+	return &MongoDB{DB: mongoClient.Database(config.Database.Name)}, nil
 }
