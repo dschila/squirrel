@@ -32,6 +32,18 @@ func ShareRoutes(r *gin.RouterGroup, mongo *database.MongoDB) {
 
 	shareRoute := r.Group("/share")
 	shareRoute.POST("/", createFile(c.MinioClient, bucket, shareEntity))
+	shareRoute.GET("/:shareId", getShare(shareEntity))
+}
+
+func getShare(shareEntity repository.IShare) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		shareId := ctx.Param("shareId")
+		share, code, err := shareEntity.GetShare(shareId)
+		if err != nil {
+			logrus.Warn("Share not found.")
+		}
+		ctx.JSON(code, share)
+	}
 }
 
 func createFile(c *minio.Client, bucket string, shareEntity repository.IShare) func(ctx *gin.Context) {
