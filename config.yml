@@ -1,3 +1,0 @@
-database:
-  uri: "mongodb://squirrel:squirrel@localhost:6972/squirrel"
-  name: "squirrel"
