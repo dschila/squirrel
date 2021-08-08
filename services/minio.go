@@ -7,6 +7,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/spf13/viper"
 )
 
 type MinioStorage struct {
@@ -14,9 +15,9 @@ type MinioStorage struct {
 }
 
 func InitMinioClient() (*MinioStorage, error) {
-	endpoint := "localhost:6971"
-	accessKeyID := "minioadmin"
-	secretAccessKey := "minioadmin"
+	endpoint := viper.GetString("minio.host")
+	accessKeyID := viper.GetString("minio.accesskeyid")
+	secretAccessKey := viper.GetString("minio.secretaccesskey")
 
 	credentails := credentials.NewStaticV4(accessKeyID, secretAccessKey, "")
 
