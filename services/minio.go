@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/minio/minio-go/v7"
@@ -43,5 +44,15 @@ func MakeBucket(storage *MinioStorage, bucketName string) (bool, error) {
 	} else {
 		log.Printf("Successfully created %s\n", bucketName)
 	}
+
+	// when new bucket created set access policy to public
+	policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"],"Sid": ""}]}`, bucketName)
+	err = storage.MinioClient.SetBucketPolicy(ctx, bucketName, policy)
+	if err != nil {
+		return false, err
+	} else {
+		log.Printf("Successfully set access policy to public \n")
+	}
+
 	return true, nil
 }

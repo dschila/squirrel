@@ -29,11 +29,12 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
     ports:
-    - '6971:9000'
+      - '6971:9000'
+      - '34443:34443'
     volumes:
-    - 'minio_data:/data'
-    command: server /data
-
+      - 'minio_data:/data'
+    command: server /data --console-address :34443
+      
 volumes: 
     minio_data:
         driver: local
