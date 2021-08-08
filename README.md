@@ -1,17 +1,23 @@
-# squirrel
+<h1 align="center">
+squirrel - share-backend-api
+</h1>
 
-## quickstart
+<p align="center">REST API <b>backend</b> (Golang) for <a href="https://github.com/beyeja/peacock/">peacock</a> to store files into a minIO-Bucket</p>
 
-to start required mongo-db and minIO services run:
 
-```batch
+## ⚡️ Quick start 
+
+[Download](https://golang.org/dl/) and install **Go**. Version `1.16` or higher is required.
+
+[Download](https://docs.docker.com/get-docker/) and install **Docker**. Make sure you have installed Docker Compose as well
+
+Start required services **mongo-db** and **minIO** by using docker-compose:
+
+```bash
 docker-compose up -d
 ```
 
-to start "squirrel" (share-backend-api)
-
-```batch
+Let's start the backend service
+```bash
 go run main.go
 ```
-
-TODO refine this readme ;)
